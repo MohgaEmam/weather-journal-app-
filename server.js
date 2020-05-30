@@ -23,17 +23,26 @@ const port = 8000;
 const server = app.listen(port, () => {console.log(`Server is running on local host: ${port}`)});
 console.log(server);
 
-//post route 
-app.post('/weather', (req,res) => {
-    projectData = {
-        temp: req.body.temp,
-        date: req.body.date,
-        feel: req.body.feel,
-    }
-    res.send(projectData);
-});
-
 //Get route
 app.get('/all', (req, res) => {
     res.send(projectData);
 });
+
+//post route 
+app.post('/weather', (req,res) => {
+    // projectData = {
+    //     temp: req.body.temp,
+    //     date: req.body.date,
+    //     feel: req.body.feel,
+    // }
+    // res.send(projectData);
+
+    let data = req.body;
+
+    projectData["temp"] = data.temp;
+    projectData["feel"] = data.feel;
+    projectData["date"] = data.date;
+    res.send(projectData);
+});
+
+
