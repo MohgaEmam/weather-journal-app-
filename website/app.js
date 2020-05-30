@@ -10,26 +10,39 @@ let d = new Date();
 let newDate = d.getMonth()+'.'+ d.getDate()+'.'+ d.getFullYear();
 
 // reterive data from open weather map
-const getWeather = async (finalURl) => {
-  const req = await fetch (finalURl);
+const getWeather = async (baseURL, zipCode, api) => {
+  const req = await fetch (baseURL+ zipCode+ api);
   const recivedInfo = await req.json();
   return recivedInfo;
 }
 
+function getzipWeather() {
+
+  //gets the zip data from the zip text field
+  let zip = document.getElementById('zip').value + ",";
+  console.log(zip);
+  
+  let weather = getWeather(baseURL, zip, api);
+  
+  return weather;
+  
+  }
+
 //add EventLisenter to button
 button.addEventListener('click', action)
 function action() {
-  getWeather(finalURl)
-  .then(
-    postData('/weather', {
-      temp: data.main.temp,
-      date: d,
-      feel: userInput,
-    })
-  )
-  .then(
-    updateUI()
-  )
+  getzipWeather()
+  .then(function(data){
+
+    //gets the text from the feelings text box
+    let feelings = document.getElementById('feelings').value;
+
+    //post data to the server
+    postData('/weather', {date: d, temp: data.main.temp, feeling: feelings});
+
+    updateUI({date: newDate, temp: data.main.temp, feeling: feelings});
+
+  });
 }
 
 // post data to server 
@@ -51,17 +64,24 @@ const postData = async(url = '', data = {}) => {
   }
 }
 // update userInterface 
-const updateUI = async () => {
+const updateUI = async (data={}) => {
   const req = await fetch ('/all');
   try {
     const finalData = await req.json();
     // update most recent entry 
     // date
-    document.getElementById('date').innerHTML = `Date is : ${finalData.date}`; 
+    document.getElementById('date').innerHTML = `Date is : ${data.temp}`; 
     // temp
-    document.getElementById('temp').innerHTML = `Temprature is : ${finalData.temp} `
+    document.getElementById('temp').innerHTML = `Temprature is : ${data.temp} `
     // content
-    document.getElementById('content').innerHTML = `feelings is : ${finalData.feel}`
+    document.getElementById('content').innerHTML = `feelings is : ${data.feeling}`
+    
+
+    //reset zip and feelings for next entry
+    document.getElementById('zip').value = "";
+    document.getElementById('feelings').value = "";
+  
+  
   }
   catch(error) {
   console.log('error', error);
